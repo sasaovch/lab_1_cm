@@ -3,7 +3,6 @@ package com.jacobi;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Timestamp;
 
 import com.jacobi.entity.ResultSolve;
 import com.jacobi.entity.SystemParameters;
@@ -19,6 +18,7 @@ public class App {
         IOStream syOutputStream = new IOStream();
         if (args.length == 0) {
             syOutputStream.writelnAndFlush(TextMessageUtil.NO_PARAMETERS);
+            return;
         }
         String type = args[0];
         SystemParameters systemParameters = null;
