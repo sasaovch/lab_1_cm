@@ -6,9 +6,7 @@ public class SimpleItrMethodSystemParam implements SystemParameters {
     private double accuracy;
     private int maxIter;
 
-    public SimpleItrMethodSystemParam() {
-    }
-
+    public SimpleItrMethodSystemParam() {}
     public SimpleItrMethodSystemParam(Matrix matrix, double[] vector, double accuracy, int maxIter) {
         this.matrix = matrix;
         this.vector = vector;
@@ -19,15 +17,19 @@ public class SimpleItrMethodSystemParam implements SystemParameters {
     public Matrix geMatrix() {
         return matrix;
     }
+
     public double[] getVector() {
         return vector;
     }
+
     public double getAccuracy() {
         return accuracy;
     }
+
     public int getMaxIter() {
         return maxIter;
     }
+    
     public void setVector(double[] vec) {
         this.vector = vec;
     }

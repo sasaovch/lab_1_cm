@@ -3,6 +3,7 @@ package com.jacobi;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Timestamp;
 
 import com.jacobi.entity.ResultSolve;
 import com.jacobi.entity.SystemParameters;
@@ -11,58 +12,55 @@ import com.jacobi.io.GenerateInputForSimItrMeth;
 import com.jacobi.io.IOStream;
 import com.jacobi.io.UserInputForSimItrMeth;
 import com.jacobi.solve_service.SimpleIterationMethodForLinearEqSystem;
+import com.jacobi.util.TextMessageUtil;
 
 public class App {
-    private static final String INCORRECT_PARAMETERS = "Incorrect arguments. Please enter -[f,i,g] for file/input/generate";
-    private static final String NO_PARAMETERS = "No arguments. Please enter -[f,i,g] for file/input/generate";
-    private static final String FAIL_OPEN_FILE = "Can not open file with name";
-    private static final String INCORRECT_DATA_IN_FILE = "Incorrect data in file";
-    private static final String ANSWER_MESSAGE = "Answer is";
-    private static final String ERROR_RATES_MESSAGE = "Error rates";
-    private static final String ITER_NUMBER_MESS = "Number of iterations:";
     public static void main(String[] args) throws IOException {
         IOStream syOutputStream = new IOStream();
         if (args.length == 0) {
-            syOutputStream.writelnAndFlush(NO_PARAMETERS);
+            syOutputStream.writelnAndFlush(TextMessageUtil.NO_PARAMETERS);
         }
         String type = args[0];
         SystemParameters systemParameters = null;
         switch (type) {
-            case "-f":
+            case TextMessageUtil.F_FLAG:
                 try (BufferedReader bufferedReader = new BufferedReader(new FileReader(args[1]))) {
                     syOutputStream.setReader(bufferedReader);
                     systemParameters = new FileInputForSimItrMeth(syOutputStream).readInput();
                     if (systemParameters == null) {
-                        syOutputStream.writelnAndFlush(INCORRECT_DATA_IN_FILE);
+                        syOutputStream.writelnAndFlush(TextMessageUtil.INCORRECT_DATA_IN_FILE);
                         return;
                     }
                 } catch (IOException e) {
-                    syOutputStream.writelnAndFlush(FAIL_OPEN_FILE + " " + args[1]);
+                    syOutputStream.writelnAndFlush(TextMessageUtil.FAIL_OPEN_FILE + TextMessageUtil.WHITESPACE + args[1]);
                 }
                 break;
-            case "-i":
+            case TextMessageUtil.I_FLAG:
                 systemParameters = new UserInputForSimItrMeth(syOutputStream).readInput();
                 break;
-            case "-g":
+            case TextMessageUtil.G_FLAG:
                 systemParameters = new GenerateInputForSimItrMeth(syOutputStream).readInput();
                 break;
             default:
-                syOutputStream.writelnAndFlush(INCORRECT_PARAMETERS);
+                syOutputStream.writelnAndFlush(TextMessageUtil.INCORRECT_PARAMETERS);
                 return;
         }
+        long startTime = System.currentTimeMillis();
         SimpleIterationMethodForLinearEqSystem solveSystem = new SimpleIterationMethodForLinearEqSystem();
         ResultSolve res = solveSystem.solveSystem(systemParameters);
         if (res.getArray() == null) {
             syOutputStream.writelnAndFlush(res.getMessage());
         } else {
             syOutputStream.writelnAndFlush(res.getMessage());
-            syOutputStream.writelnAndFlush(ITER_NUMBER_MESS + " " + res.getIteration());
-            syOutputStream.writelnAndFlush(ANSWER_MESSAGE);
+            syOutputStream.writelnAndFlush(TextMessageUtil.ITER_NUMBER_MESS + TextMessageUtil.WHITESPACE + res.getIteration());
+            syOutputStream.writelnAndFlush(TextMessageUtil.ANSWER_MESSAGE);
             syOutputStream.writeArray(res.getArray());
             syOutputStream.flush();
-            syOutputStream.writelnAndFlush(ERROR_RATES_MESSAGE);
+            syOutputStream.writelnAndFlush(TextMessageUtil.ERROR_RATES_MESSAGE);
             syOutputStream.writeArray(res.getErrorRates());
             syOutputStream.flush();
         }
+        long endTime = System.currentTimeMillis();
+        syOutputStream.writelnAndFlush(TextMessageUtil.TIME_MESSAGE + TextMessageUtil.WHITESPACE + (endTime - startTime));
     }
 }

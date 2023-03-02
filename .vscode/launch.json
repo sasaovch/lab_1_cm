@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "com.jacobi.App",
             "projectName": "jacobi",
-            "args": "-f 'input.txt'"
+            "args": "-g 'test1 copy.txt'"
         }
     ]
 }

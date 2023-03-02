@@ -4,21 +4,22 @@ import com.jacobi.entity.Matrix;
 import com.jacobi.entity.ResultSolve;
 import com.jacobi.entity.SimpleItrMethodSystemParam;
 import com.jacobi.entity.SystemParameters;
+import com.jacobi.util.TextMessageUtil;
 
 public class SimpleIterationMethodForLinearEqSystem implements SolveSystemOfEquation {
 
     public ResultSolve solveSystem(SystemParameters systemParameters) {
 
         if (!(systemParameters instanceof SimpleItrMethodSystemParam)) {
-            return new ResultSolve("Incorrect systemParameters class");
+            return new ResultSolve(TextMessageUtil.INCORRECT_SYSTPARAMETER_CLASS);
         }
         SimpleItrMethodSystemParam sPar = (SimpleItrMethodSystemParam) systemParameters;
         Matrix matrix = sPar.geMatrix();
         if (matrix.getRows() != matrix.getColumns()) {
-            return new ResultSolve("Matrix should be square");
+            return new ResultSolve(TextMessageUtil.MATRIX_NOT_SQUARE);
         }
-        if (!checkDiagonalPredominance(matrix) || tryToMakeDiagonalPredominance(sPar)) {
-            return new ResultSolve("Matrix should have diagonal predominace");
+        if (!checkDiagonalPredominance(matrix) && !tryToMakeDiagonalPredominance(sPar)) {
+            return new ResultSolve(TextMessageUtil.MATRIX_NOT_DIAG_PREDOMINANCE);
         }
 
         int n = matrix.getRows();
@@ -26,23 +27,25 @@ public class SimpleIterationMethodForLinearEqSystem implements SolveSystemOfEqua
         double err = 0;
         double[] errorRates = new double[n];
 
+        // iterate to solve system
         for (int k = 0; k < sPar.getMaxIter(); k++) {
             double[] newIterationSol = countNewX(matrix, sPar.getVector(), solution);
             err = 0;
+            // count error
             for (int i = 0; i < n; i++) {
                 err = Math.max(Math.abs(newIterationSol[i] - solution[i]), err);
                 errorRates[i] = Math.abs(newIterationSol[i] - solution[i]);
             }
             if (err < sPar.getAccuracy()) {
-                return new ResultSolve(newIterationSol, "Success", errorRates, k); // Convergence achieved, return solution
+                return new ResultSolve(newIterationSol, TextMessageUtil.SUCCESS, errorRates, k); // Convergence achieved, return solution
             }
-            // Update solution vector
+            // update solution vector
             solution = newIterationSol;
         }
         if (err > sPar.getAccuracy()) {
-            return new ResultSolve("Jacobi method did not converge");
+            return new ResultSolve(TextMessageUtil.FAIL_JACOBI_METHOD);
         }
-        return new ResultSolve(solution, "Success", errorRates, sPar.getMaxIter());
+        return new ResultSolve(solution, TextMessageUtil.SUCCESS, errorRates, sPar.getMaxIter());
     }
 
     private boolean checkDiagonalPredominance(Matrix matrix) {
